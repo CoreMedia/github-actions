@@ -1,0 +1,90 @@
+# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+# Required permissions that must be set in caller workflows (in private repositories):
+# contents: (read)      for actions/checkout to fetch code (included in 'write')
+# contents: write       for advanced-security/maven-dependency-submission-action to submit dependencies
+
+name: Maven Project Build
+
+on:
+  workflow_call:
+    inputs:
+      java_version:
+        description: The Java version to be used - see https://github.com/actions/setup-java#usage (java-version).
+        type: string
+        required: false
+        default: 11
+      java_distribution:
+        description: The Java distribution to be used - https://github.com/actions/setup-java#usage (distribution).
+        type: string
+        required: false
+        default: corretto
+      maven_command:
+        description: The Maven build command to be executed.
+        type: string
+        required: false
+        default: 'mvn --batch-mode install'
+      maven_repo_server_id:
+        description: The ID of an additional Maven repository to download artifacts from.
+        type: string
+        required: false
+        default: ''
+    secrets:
+      maven_repo_user:
+        description: The user to connect to an additional Maven repository to download artifacts from.
+        required: false
+      maven_repo_password:
+        description: The password to connect to an additional Maven repository to download artifacts from.
+        required: false
+    outputs:
+      teams_fact_json:
+        description: The 'fact' JSON snippet that can be added to an MS Teams Notification.
+        value: |
+          {
+            "name": "Maven Build:",
+            "value": "${{ jobs.maven.outputs.result }}"
+          }
+
+jobs:
+  maven:
+    name: Maven Build
+    runs-on: ubuntu-latest
+    env:
+      MAVEN_REPO_USER: ${{ secrets.maven_repo_user }}
+      MAVEN_REPO_PASSWORD: ${{ secrets.maven_repo_password }}
+    outputs:
+      result: ${{ job.status }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3.5.0
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3.11.0
+        with:
+          java-version: ${{ inputs.java_version }}
+          distribution: ${{ inputs.java_distribution }}
+          server-id: ${{ inputs.maven_repo_server_id }}
+          server-username: MAVEN_REPO_USER
+          server-password: MAVEN_REPO_PASSWORD
+
+      - name: Cache Maven Repo
+        uses: actions/cache@v3.3.1
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Run Maven Build
+        run: ${{ inputs.maven_command }}
+
+      # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive.
+      - name: Update dependency graph
+        if: github.ref_name == github.event.repository.default_branch
+        uses: advanced-security/maven-dependency-submission-action@v3.0.0
