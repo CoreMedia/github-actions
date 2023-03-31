@@ -1,0 +1,105 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+# Required permissions that must be set in caller workflows (in private repositories):
+# contents:         read      for actions/checkout to fetch code
+# security-events:  write     for github/codeql-action/upload-sarif to upload SARIF results
+
+name: Trivy Filesystem Scan
+
+on:
+  workflow_call:
+    inputs:
+      fail_on_issues:
+        description: Fail when vulnerabilities are found.
+        type: boolean
+        required: false
+        default: false
+      scan_ignores:
+        description: |
+          Comma-separated list of relative paths in repository to one or more '.trivyignore' files - see 
+          https://github.com/aquasecurity/trivy-action#inputs (trivyignores).
+        type: string
+        required: false
+      scan_path:
+        description: |
+          The repository path to be scanned - see https://github.com/aquasecurity/trivy-action#inputs (scan-ref).
+        type: string
+        required: false
+        default: .
+      scan_output_file:
+        description: The output file for the scan results, - see input 'output' of 'aquasecurity/trivy-action'.
+        type: string
+        required: false
+        default: trivy-image-results.sarif
+      scan_output_format:
+        description: |
+          The output format of the scan results. If the format is 'sarif' (default), the results are automatically
+          uploaded to GitHub code scanning.
+        type: string
+        required: false
+        default: sarif
+      scan_output_template:
+        description: |
+          The output template for the scan results - see https://github.com/aquasecurity/trivy-action#inputs (template).
+        type: string
+        required: false
+      scan_severity:
+        description: |
+          The severities of security issues to be reported - see https://github.com/aquasecurity/trivy-action#inputs
+          (severity).
+        type: string
+        required: false
+        default: UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
+      scan_vuln_type:
+        description: |
+          The vulnerability types to be reported - see https://github.com/aquasecurity/trivy-action#inputs (vuln-type).
+        type: string
+        required: false
+    outputs:
+      teams_fact_json:
+        description: The 'fact' JSON snippet that can be added to an MS Teams Notification.
+        value: |
+          {
+            "name": "Trivy Filesystem Scan:",
+            "value": "${{ jobs.filesystem.outputs.result }}"
+          }
+
+jobs:
+  filesystem:
+    name: Filesystem Scan
+    runs-on: ubuntu-latest
+    outputs:
+      result: ${{ job.status }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3.5.0
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.9.2
+        with:
+          scan-type: fs
+          scan-ref: ${{ inputs.scan_path }}
+          format: ${{ inputs.scan_output_format }}
+          output: ${{ inputs.scan_output_file }}
+          template: ${{ inputs.scan_output_template }}
+          vuln-type: ${{ inputs.scan_vuln_type }}
+          severity: ${{ inputs.scan_severity }}
+          trivyignores: ${{ inputs.scan_ignores }}
+          exit-code: ${{ inputs.fail_on_issues && '1' || '0' }}
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        if: always() && inputs.scan_output_format == 'sarif'
+        uses: github/codeql-action/upload-sarif@v2.2.11
+        with:
+          sarif_file: ${{ inputs.scan_output_file }}
+
+      - name: Upload Trivy scan results to GitHub workflow run
+        if: always() && inputs.scan_output_format != 'sarif'
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: ${{ inputs.scan_output_file }}
+          path: ${{ inputs.scan_output_file }}
