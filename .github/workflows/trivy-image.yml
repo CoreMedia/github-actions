@@ -53,10 +53,11 @@ on:
         type: string
         required: true
       scan_output_file:
-        description: The output file for the scan results, - see input 'output' of 'aquasecurity/trivy-action'.
+        description: |
+          The output file for the scan results, - see https://github.com/aquasecurity/trivy-action#inputs (output).
+          When an output file be is configured, it will be attached to the workflow run.
         type: string
         required: false
-        default: trivy-image-results.sarif
       scan_output_format:
         description: |
           The output format of the scan results. If the format is 'sarif' (default), the results are automatically
@@ -101,6 +102,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3.5.0
 
+      - name: Initialize internal configuration
+        id: config
+        run: |
+          if [[ -n '${{ inputs.scan_output_file }}' ]]; then
+            echo 'output_file=${{ inputs.scan_output_file }}' >> "$GITHUB_OUTPUT"
+          elif [[ '${{ inputs.scan_output_format }}' == 'sarif' ]]; then
+            echo 'output_file=trivy-image-results.sarif' >> "$GITHUB_OUTPUT"
+          elif [[ '${{ inputs.scan_output_format }}' != 'table' ]]; then
+            echo "::error title=Configuration Error::'scan_output_format=${{ inputs.scan_output_format }}' requires 'scan_output_file'."
+            exit 1
+          fi
+
       - name: Set up JDK 11
         if: startsWith(inputs.build_image_command, 'mvn')
         uses: actions/setup-java@v3.11.0
@@ -126,7 +139,7 @@ jobs:
           scan-type: image
           image-ref: ${{ inputs.scan_image_ref }}
           format: ${{ inputs.scan_output_format }}
-          output: ${{ inputs.scan_output_file }}
+          output: ${{ steps.config.outputs.output_file }}
           template: ${{ inputs.scan_output_template }}
           vuln-type: ${{ inputs.scan_vuln_type }}
           severity: ${{ inputs.scan_severity }}
@@ -137,11 +150,11 @@ jobs:
         if: always() && inputs.scan_output_format == 'sarif'
         uses: github/codeql-action/upload-sarif@v2.2.11
         with:
-          sarif_file: ${{ inputs.scan_output_file }}
+          sarif_file: ${{ steps.config.outputs.output_file }}
 
       - name: Upload Trivy scan results to GitHub workflow run
-        if: always() && inputs.scan_output_format != 'sarif'
+        if: always() && inputs.scan_output_file
         uses: actions/upload-artifact@v3.1.2
         with:
-          name: ${{ inputs.scan_output_file }}
-          path: ${{ inputs.scan_output_file }}
+          name: ${{ steps.config.outputs.output_file }}
+          path: ${{ steps.config.outputs.output_file }}
