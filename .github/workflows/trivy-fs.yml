@@ -12,6 +12,10 @@ name: Trivy Filesystem Scan
 on:
   workflow_call:
     inputs:
+      checkout_ref:
+        description: The branch to checkout - see https://github.com/actions/checkout#usage (ref).
+        type: string
+        required: false
       fail_on_issues:
         description: Fail when vulnerabilities are found.
         type: boolean
@@ -78,10 +82,19 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3.5.0
+        with:
+          ref: ${{ inputs.checkout_ref }}
 
       - name: Initialize internal configuration
         id: config
         run: |
+          if [[ -n '${{ inputs.checkout_ref }}' ]]; then
+            echo "checkout_sha=$(git show-ref ${{ inputs.checkout_ref }} | grep -v '/remotes/' | sed 's/ .*//')" >> "$GITHUB_OUTPUT"
+            echo "checkout_ref=$(git show-ref ${{ inputs.checkout_ref }} | grep -v '/remotes/' | sed 's/.* //')" >> "$GITHUB_OUTPUT"
+            echo "upload_artifact_name_prefix=${{ inputs.checkout_ref }}_" >> "$GITHUB_OUTPUT"
+          else
+            echo "upload_artifact_name_prefix=" >> "$GITHUB_OUTPUT"
+          fi
           if [[ -n '${{ inputs.scan_output_file }}' ]]; then
             echo 'output_file=${{ inputs.scan_output_file }}' >> "$GITHUB_OUTPUT"
           elif [[ '${{ inputs.scan_output_format }}' == 'sarif' ]]; then
@@ -109,10 +122,12 @@ jobs:
         uses: github/codeql-action/upload-sarif@v2.2.11
         with:
           sarif_file: ${{ steps.config.outputs.output_file }}
+          ref: ${{ steps.config.outputs.checkout_ref }}
+          sha: ${{ steps.config.outputs.checkout_sha }}
 
       - name: Upload Trivy scan results to GitHub workflow run
         if: always() && inputs.scan_output_file
         uses: actions/upload-artifact@v3.1.2
         with:
-          name: ${{ steps.config.outputs.output_file }}
+          name: ${{ steps.config.outputs.upload_artifact_name_prefix }}${{ steps.config.outputs.output_file }}
           path: ${{ steps.config.outputs.output_file }}

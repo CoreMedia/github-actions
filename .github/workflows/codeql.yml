@@ -24,6 +24,10 @@ name: CodeQL Analysis
 on:
   workflow_call:
     inputs:
+      checkout_ref:
+        description: The branch to checkout - see https://github.com/actions/checkout#usage (ref).
+        type: string
+        required: false
       java_version:
         description: |
           The Java version to be used - see https://github.com/actions/setup-java#usage (java-version). It's only used
@@ -80,6 +84,16 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3.5.0
+        with:
+          ref: ${{ inputs.checkout_ref }}
+
+      - name: Initialize internal configuration
+        id: config
+        run: |
+          if [[ -n '${{ inputs.checkout_ref }}' ]]; then
+            echo "checkout_sha=$(git show-ref ${{ inputs.checkout_ref }} | grep -v '/remotes/' | sed 's/ .*//')" >> "$GITHUB_OUTPUT"
+            echo "checkout_ref=$(git show-ref ${{ inputs.checkout_ref }} | grep -v '/remotes/' | sed 's/.* //')" >> "$GITHUB_OUTPUT"
+          fi
 
       # Initializes the CodeQL tools for scanning.
       - name: Initialize CodeQL
@@ -117,3 +131,5 @@ jobs:
         uses: github/codeql-action/analyze@v2.2.11
         with:
           category: "/language:${{ matrix.language }}"
+          ref: ${{ steps.config.outputs.checkout_ref }}
+          sha: ${{ steps.config.outputs.checkout_sha }}
