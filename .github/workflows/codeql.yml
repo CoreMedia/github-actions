@@ -28,6 +28,12 @@ on:
         description: The branch to checkout - see https://github.com/actions/checkout#usage (ref).
         type: string
         required: false
+      config_file:
+        description: |
+          The path of the CodeQL config file to use - see https://github.com/github/codeql-action and
+          https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/customizing-code-scanning#working-with-custom-configuration-files
+        type: string
+        required: false
       java_version:
         description: |
           The Java version to be used - see https://github.com/actions/setup-java#usage (java-version). It's only used
@@ -129,6 +135,7 @@ jobs:
 
           # Details on CodeQL's query packs refer to : https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning#using-queries-in-ql-packs
           queries: ${{ inputs.queries }}
+          config-file: ${{ inputs.config_file }}
 
       - name: Set up JDK 11
         if: matrix.language == 'java'
