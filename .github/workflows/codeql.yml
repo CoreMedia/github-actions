@@ -61,11 +61,10 @@ on:
         default: ''
       queries:
         description: |
-          The CodeQL query suites to run - see
+          The CodeQL query suites to run - see https://github.com/github/codeql-action and
           https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/customizing-code-scanning#using-queries-in-ql-packs
         type: string
         required: false
-        default: security-and-quality
     secrets:
       maven_repo_user:
         description: |
