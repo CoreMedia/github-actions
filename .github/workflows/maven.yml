@@ -90,6 +90,7 @@ jobs:
           server-password: MAVEN_REPO_PASSWORD
 
       - name: Cache Maven Repo
+        if: ${{ !env.ACT }}
         uses: actions/cache@v3.3.1
         with:
           path: ~/.m2
