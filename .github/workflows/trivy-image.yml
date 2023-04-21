@@ -44,6 +44,16 @@ on:
         type: string
         required: false
         default: corretto
+      maven_settings:
+        description: |
+          The (user) 'settings.xml' file to be used for the Maven build. Please note that environment variables
+          cannot be provided from the caller workflow. If environment variables with server credentials are
+          required by the provided 'settings.xml', they must be named 'MAVEN_REPO_USER' and 'MAVEN_REPO_PASSWORD'
+          and have to be set via workflow secrets 'maven_repo_user' and 'maven_repo_password'. It's only used when
+          the 'image_build_command' starts with 'mvn'.
+        type: string
+        required: false
+        default: ''
       scan_ignores:
         description: |
           Comma-separated list of relative paths in repository to one or more '.trivyignore' files - see 
@@ -86,6 +96,17 @@ on:
           The vulnerability types to be reported - see https://github.com/aquasecurity/trivy-action#inputs (vuln-type).
         type: string
         required: false
+    secrets:
+      maven_repo_user:
+        description: |
+          The user to connect to an additional Maven repository to download artifacts from. Will be set via
+          environment variable 'MAVEN_REPO_USER'. It's only used when the 'image_build_command' starts with 'mvn'.
+        required: false
+      maven_repo_password:
+        description: |
+          The password to connect to an additional Maven repository to download artifacts from. Will be set via
+          environment variable 'MAVEN_REPO_PASSWORD'. It's only used when the 'image_build_command' starts with 'mvn'.
+        required: false
     outputs:
       teams_fact_json:
         description: The 'fact' JSON snippet that can be added to an MS Teams Notification.
@@ -99,6 +120,9 @@ jobs:
   image:
     name: Image Scan
     runs-on: ubuntu-latest
+    env:
+      MAVEN_REPO_USER: ${{ secrets.maven_repo_user }}
+      MAVEN_REPO_PASSWORD: ${{ secrets.maven_repo_password }}
     outputs:
       result: ${{ job.status }}
 
@@ -133,6 +157,10 @@ jobs:
         with:
           java-version: ${{ inputs.java_version }}
           distribution: ${{ inputs.java_distribution }}
+
+      - name: Overwrite Maven settings
+        if: startsWith(inputs.build_image_command, 'mvn') && inputs.maven_settings
+        run: cp ${{ inputs.maven_settings }} ${HOME}/.m2/settings.xml
 
       - name: Cache Maven Repo
         if: startsWith(inputs.build_image_command, 'mvn')
