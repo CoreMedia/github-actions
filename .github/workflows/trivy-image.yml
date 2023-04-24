@@ -135,7 +135,7 @@ jobs:
           distribution: ${{ inputs.java_distribution }}
 
       - name: Cache Maven Repo
-        if: startsWith(inputs.build_image_command, 'mvn')
+        if: ${{ !env.ACT && startsWith(inputs.build_image_command, 'mvn') }}
         uses: actions/cache@v3.3.1
         with:
           path: ~/.m2

@@ -115,7 +115,7 @@ jobs:
           distribution: ${{ inputs.java_distribution }}
 
       - name: Cache Maven Repo
-        if: matrix.language == 'java'
+        if: ${{ !env.ACT && matrix.language == 'java' }}
         uses: actions/cache@v3.3.1
         with:
           path: ~/.m2
