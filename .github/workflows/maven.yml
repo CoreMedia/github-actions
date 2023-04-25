@@ -121,4 +121,4 @@ jobs:
       # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive.
       - name: Update dependency graph
         if: steps.config.outputs.checkout_ref == github.event.repository.default_branch
-        uses: advanced-security/maven-dependency-submission-action@v3.0.0
+        uses: advanced-security/maven-dependency-submission-action@v3.0.1
