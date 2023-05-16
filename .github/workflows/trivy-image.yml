@@ -7,6 +7,13 @@
 # required artifacts that are needed for the build are already cached and no downloads from a custom Maven repository
 # manager are required anymore.
 
+# ******** NOTE ********
+# The configuration of the trivy-action (and with that the configuration of THIS workflow) may not behave like expected,
+# because the implementation of the trivy-action takes some unpredictable precedences when working with combinations of
+# SARIF reports, Trivy config file and plain action input parameters. If you experience such unexpected behaviour with
+# your configuration, you may find hints how to solve it having a look at the implementation of the trivy-action,
+# especially https://github.com/aquasecurity/trivy-action/blob/0.11.0/entrypoint.sh#L175-L190.
+
 # Required permissions that must be set in caller workflows (in private repositories):
 # contents:         read      for actions/checkout to fetch code
 # security-events:  write     for github/codeql-action/upload-sarif to upload SARIF results
@@ -54,6 +61,22 @@ on:
         type: string
         required: false
         default: ''
+      scan_config:
+        description: |
+          The path to a 'trivy.yaml' config file - see https://github.com/aquasecurity/trivy-action#inputs
+          (trivy-config) and https://aquasecurity.github.io/trivy/latest/docs/references/configuration/config-file.
+          Using a config file over action inputs provides more configuration options and may lead to cleaner workflow
+          code. A YAML contents of a basic config file may look like this:
+              severity:
+                - MEDIUM
+                - HIGH
+                - CRITICAL
+              vulnerability:
+                type:
+                  - library
+          Please also see the NOTE above to avoid problems due to unpredictable configuration precedences.
+        type: string
+        required: false
       scan_ignores:
         description: |
           Comma-separated list of relative paths in repository to one or more '.trivyignore' files - see 
@@ -179,6 +202,7 @@ jobs:
         with:
           scan-type: image
           image-ref: ${{ inputs.scan_image_ref }}
+          trivy-config: ${{ inputs.scan_config }}
           format: ${{ inputs.scan_output_format }}
           output: ${{ steps.config.outputs.output_file }}
           template: ${{ inputs.scan_output_template }}
