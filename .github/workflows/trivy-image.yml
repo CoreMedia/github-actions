@@ -118,10 +118,9 @@ on:
       scan_severity:
         description: |
           The severities of security issues to be reported - see https://github.com/aquasecurity/trivy-action#inputs
-          (severity).
+          (severity). Defaults to 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL'.
         type: string
         required: false
-        default: UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
       scan_vuln_type:
         description: |
           The vulnerability types to be reported - see https://github.com/aquasecurity/trivy-action#inputs (vuln-type).
