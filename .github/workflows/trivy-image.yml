@@ -189,7 +189,7 @@ jobs:
 
       - name: Upload Trivy scan results to GitHub Security tab
         if: always() && inputs.scan_output_format == 'sarif'
-        uses: github/codeql-action/upload-sarif@v2.3.5
+        uses: github/codeql-action/upload-sarif@v2.3.6
         with:
           sarif_file: ${{ steps.config.outputs.output_file }}
           ref: ${{ steps.config.outputs.checkout_ref }}
