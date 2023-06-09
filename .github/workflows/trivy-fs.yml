@@ -3,6 +3,13 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
+# ******** NOTE ********
+# The configuration of the trivy-action (and with that the configuration of THIS workflow) may not behave like expected,
+# because the implementation of the trivy-action takes some unpredictable precedences when working with combinations of
+# SARIF reports, Trivy config file and plain action input parameters. If you experience such unexpected behaviour with
+# your configuration, you may find hints how to solve it having a look at the implementation of the trivy-action,
+# especially https://github.com/aquasecurity/trivy-action/blob/0.11.0/entrypoint.sh#L175-L190.
+
 # Required permissions that must be set in caller workflows (in private repositories):
 # contents:         read      for actions/checkout to fetch code
 # security-events:  write     for github/codeql-action/upload-sarif to upload SARIF results
@@ -21,6 +28,30 @@ on:
         type: boolean
         required: false
         default: false
+      limit_severities_for_sarif:
+        description: |
+          Limit the severities of the reported issues for SARIF format to the configured severity - see
+          https://github.com/aquasecurity/trivy-action#inputs (limit-severities-for-sarif). Normally the
+          SARIF report contains the issues of all severities. This input can have an influence on the
+          precedence of the action configuration, please see the NOTE above.
+        type: string
+        required: false
+      scan_config:
+        description: |
+          The path to a 'trivy.yaml' config file - see https://github.com/aquasecurity/trivy-action#inputs
+          (trivy-config) and https://aquasecurity.github.io/trivy/latest/docs/references/configuration/config-file.
+          Using a config file over action inputs provides more configuration options and may lead to cleaner workflow
+          code. A YAML contents of a basic config file may look like this:
+              severity:
+                - MEDIUM
+                - HIGH
+                - CRITICAL
+              vulnerability:
+                type:
+                  - library
+          Please also see the NOTE above to avoid problems due to unpredictable configuration precedences.
+        type: string
+        required: false
       scan_ignores:
         description: |
           Comma-separated list of relative paths in repository to one or more '.trivyignore' files - see 
@@ -54,10 +85,9 @@ on:
       scan_severity:
         description: |
           The severities of security issues to be reported - see https://github.com/aquasecurity/trivy-action#inputs
-          (severity).
+          (severity). Defaults to 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL'.
         type: string
         required: false
-        default: UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
       scan_vuln_type:
         description: |
           The vulnerability types to be reported - see https://github.com/aquasecurity/trivy-action#inputs (vuln-type).
@@ -109,11 +139,13 @@ jobs:
         with:
           scan-type: fs
           scan-ref: ${{ inputs.scan_path }}
+          trivy-config: ${{ inputs.scan_config }}
           format: ${{ inputs.scan_output_format }}
           output: ${{ steps.config.outputs.output_file }}
           template: ${{ inputs.scan_output_template }}
           vuln-type: ${{ inputs.scan_vuln_type }}
           severity: ${{ inputs.scan_severity }}
+          limit-severities-for-sarif: ${{ inputs.limit_severities_for_sarif }}
           trivyignores: ${{ inputs.scan_ignores }}
           exit-code: ${{ inputs.fail_on_issues && '1' || '0' }}
 
