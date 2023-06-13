@@ -51,14 +51,6 @@ on:
         type: string
         required: false
         default: corretto
-      limit_severities_for_sarif:
-        description: |
-          Limit the severities of the reported issues for SARIF format to the configured severity - see
-          https://github.com/aquasecurity/trivy-action#inputs (limit-severities-for-sarif). Normally the
-          SARIF report contains the issues of all severities. This input can have an influence on the
-          precedence of the action configuration, please see the NOTE above.
-        type: string
-        required: false
       maven_settings:
         description: |
           The (user) 'settings.xml' file to be used for the Maven build. Please note that environment variables
@@ -215,7 +207,7 @@ jobs:
           template: ${{ inputs.scan_output_template }}
           vuln-type: ${{ inputs.scan_vuln_type }}
           severity: ${{ inputs.scan_severity }}
-          limit-severities-for-sarif: ${{ inputs.limit_severities_for_sarif }}
+          limit-severities-for-sarif: true
           trivyignores: ${{ inputs.scan_ignores }}
           exit-code: ${{ inputs.fail_on_issues && '1' || '0' }}
 
