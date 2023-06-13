@@ -205,7 +205,7 @@ jobs:
         run: ${{ inputs.build_image_command }}
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.11.0
+        uses: aquasecurity/trivy-action@0.11.2
         with:
           scan-type: image
           image-ref: ${{ inputs.scan_image_ref }}
