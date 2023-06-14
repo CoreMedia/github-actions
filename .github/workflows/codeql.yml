@@ -143,14 +143,7 @@ jobs:
         with:
           java-version: ${{ inputs.java_version }}
           distribution: ${{ inputs.java_distribution }}
-
-      - name: Cache Maven Repo
-        if: ${{ !env.ACT && matrix.language == 'java' }}
-        uses: actions/cache@v3.3.1
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven
+          cache: ${{ !env.ACT && 'maven' || '' }}
 
       - name: Overwrite Maven settings
         if: matrix.language == 'java' && inputs.maven_settings

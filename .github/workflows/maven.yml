@@ -102,14 +102,7 @@ jobs:
           server-id: ${{ inputs.maven_repo_server_id }}
           server-username: MAVEN_REPO_USER
           server-password: MAVEN_REPO_PASSWORD
-
-      - name: Cache Maven Repo
-        if: ${{ !env.ACT }}
-        uses: actions/cache@v3.3.1
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven
+          cache: ${{ !env.ACT && 'maven' || '' }}
 
       - name: Overwrite Maven settings
         if: inputs.maven_settings
