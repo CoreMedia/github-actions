@@ -192,7 +192,7 @@ jobs:
         if: ${{ !env.ACT && startsWith(inputs.build_image_command, 'mvn') }}
         uses: actions/cache@v3.3.1
         with:
-          path: ~/.m2
+          path: ~/.m2/repository
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
