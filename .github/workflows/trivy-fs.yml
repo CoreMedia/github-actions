@@ -20,6 +20,7 @@ on:
         description: |
           Fail when vulnerabilities are found. This input is ignored when a 'scan_config' is configured. Setting the
           'exit-code' to 1 or higher in the scan config file has the same effect like 'fail_on_issues: true'.
+          DEPRECATED: Use the scan config file and configure the 'exit-code' option instead.
         type: boolean
         required: false
         default: false
@@ -52,6 +53,7 @@ on:
           Comma-separated list of relative paths in repository to one or more '.trivyignore' files - see 
           https://github.com/aquasecurity/trivy-action#inputs (trivyignores). This input is ignored when a 'scan_config'
           is configured. Setting the 'ignorefile' option in the scan config file has the same effect.
+          DEPRECATED: Use the scan config file and configure the 'ignorefile' option instead.
         type: string
         required: false
       scan_path:
@@ -66,6 +68,7 @@ on:
           Defaults to 'trivy-results.sarif' when the scan format is 'sarif'. This input is ignored when a 'scan_config'
           is configured. Setting the 'output' option in the scan config file has the same effect. When an output file is
           explicitly configured with this input, it will be attached to the workflow run.
+          DEPRECATED: Use the scan config file and configure the 'output' option instead.
         type: string
         required: false
       scan_output_format:
@@ -73,6 +76,7 @@ on:
           The output format of the scan results. If the format is 'sarif' (default), the results are automatically
           uploaded to GitHub code scanning. This input is ignored when a 'scan_config' is configured. Setting the
           'format' option in the scan config file has the same effect.
+          DEPRECATED: Use the scan config file and configure the 'format' option instead.
         type: string
         required: false
         default: sarif
@@ -81,6 +85,7 @@ on:
           The output template for the scan results - see https://github.com/aquasecurity/trivy-action#inputs (template).
           This input is ignored when a 'scan_config' is configured. Setting the 'template' option in the scan config
           file has the same effect.
+          DEPRECATED: Use the scan config file and configure the 'template' option instead.
         type: string
         required: false
       scan_severity:
@@ -88,6 +93,7 @@ on:
           The severities of security issues to be reported - see https://github.com/aquasecurity/trivy-action#inputs
           (severity). Defaults to 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL'. This input is ignored when a 'scan_config' is
           configured. Setting the 'severity' option in the scan config file has the same effect.
+          DEPRECATED: Use the scan config file and configure the 'severity' option instead.
         type: string
         required: false
       scan_vuln_type:
@@ -95,6 +101,7 @@ on:
           The vulnerability types to be reported - see https://github.com/aquasecurity/trivy-action#inputs (vuln-type).
           This input is ignored when a 'scan_config' is configured. Setting the 'vulnerability.type' option in the scan
           config file has the same effect.
+          DEPRECATED: Use the scan config file and configure the 'vulnerability.type' option instead.
         type: string
         required: false
     outputs:
