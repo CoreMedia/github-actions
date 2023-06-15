@@ -3,17 +3,6 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-# This workflow can execute a Maven build that creates the Docker image that should be tested. But it assumes that all
-# required artifacts that are needed for the build are already cached and no downloads from a custom Maven repository
-# manager are required anymore.
-
-# ******** NOTE ********
-# The configuration of the trivy-action (and with that the configuration of THIS workflow) may not behave like expected,
-# because the implementation of the trivy-action takes some unpredictable precedences when working with combinations of
-# SARIF reports, Trivy config file and plain action input parameters. If you experience such unexpected behaviour with
-# your configuration, you may find hints how to solve it having a look at the implementation of the trivy-action,
-# especially https://github.com/aquasecurity/trivy-action/blob/0.11.0/entrypoint.sh#L175-L190.
-
 # Required permissions that must be set in caller workflows (in private repositories):
 # contents:         read      for actions/checkout to fetch code
 # security-events:  write     for github/codeql-action/upload-sarif to upload SARIF results
@@ -33,7 +22,10 @@ on:
         type: string
         required: false
       fail_on_issues:
-        description: Fail when vulnerabilities are found.
+        description: |
+          Fail when vulnerabilities are found. This input is ignored when a 'scan_config' is configured. Setting the
+          'exit-code' to 1 or higher in the scan config file has the same effect like 'fail_on_issues: true'.
+          DEPRECATED: Use the scan config file and configure the 'exit-code' option instead.
         type: boolean
         required: false
         default: false
@@ -51,14 +43,6 @@ on:
         type: string
         required: false
         default: corretto
-      limit_severities_for_sarif:
-        description: |
-          Limit the severities of the reported issues for SARIF format to the configured severity - see
-          https://github.com/aquasecurity/trivy-action#inputs (limit-severities-for-sarif). Normally the
-          SARIF report contains the issues of all severities. This input can have an influence on the
-          precedence of the action configuration, please see the NOTE above.
-        type: string
-        required: false
       maven_settings:
         description: |
           The (user) 'settings.xml' file to be used for the Maven build. Please note that environment variables
@@ -74,21 +58,31 @@ on:
           The path to a 'trivy.yaml' config file - see https://github.com/aquasecurity/trivy-action#inputs
           (trivy-config) and https://aquasecurity.github.io/trivy/latest/docs/references/configuration/config-file.
           Using a config file over action inputs provides more configuration options and may lead to cleaner workflow
-          code. A YAML contents of a basic config file may look like this:
-              severity:
-                - MEDIUM
-                - HIGH
-                - CRITICAL
-              vulnerability:
-                type:
-                  - library
-          Please also see the NOTE above to avoid problems due to unpredictable configuration precedences.
+          code. PLEASE NOTE that the trivy-action (and with that the configuration of THIS workflow) ignores the input
+          parameters for scan options when a scan config file is configured. Ensure that all required options are then
+          set in the scan config file. This is a basic scan config file reflecting the default input parameters (with
+          defaults commented out as they can be omitted):
+              format: sarif
+              output: trivy-results.sarif
+              #exit-code: 0
+              #severity:
+              #  - UNKNOWN
+              #  - LOW
+              #  - MEDIUM
+              #  - HIGH
+              #  - CRITICAL
+              #vulnerability:
+              #  type:
+              #    - os
+              #    - library
         type: string
         required: false
       scan_ignores:
         description: |
           Comma-separated list of relative paths in repository to one or more '.trivyignore' files - see 
-          https://github.com/aquasecurity/trivy-action#inputs (trivyignores).
+          https://github.com/aquasecurity/trivy-action#inputs (trivyignores). This input is ignored when a 'scan_config'
+          is configured. Setting the 'ignorefile' option in the scan config file has the same effect.
+          DEPRECATED: Use the scan config file and configure the 'ignorefile' option instead.
         type: string
         required: false
       scan_image_ref:
@@ -99,31 +93,44 @@ on:
         required: true
       scan_output_file:
         description: |
-          The output file for the scan results, - see https://github.com/aquasecurity/trivy-action#inputs (output).
-          When an output file be is configured, it will be attached to the workflow run.
+          The output file for the scan results, - see https://github.com/aquasecurity/trivy-action#inputs (output). The
+          Defaults to 'trivy-results.sarif' when the scan format is 'sarif'. This input is ignored when a 'scan_config'
+          is configured. Setting the 'output' option in the scan config file has the same effect. When an output file is
+          explicitly configured with this input, it will be attached to the workflow run.
+          DEPRECATED: Use the scan config file and configure the 'output' option instead.
         type: string
         required: false
       scan_output_format:
         description: |
           The output format of the scan results. If the format is 'sarif' (default), the results are automatically
-          uploaded to GitHub code scanning.
+          uploaded to GitHub code scanning. This input is ignored when a 'scan_config' is configured. Setting the
+          'format' option in the scan config file has the same effect.
+          DEPRECATED: Use the scan config file and configure the 'format' option instead.
         type: string
         required: false
         default: sarif
       scan_output_template:
         description: |
           The output template for the scan results - see https://github.com/aquasecurity/trivy-action#inputs (template).
+          This input is ignored when a 'scan_config' is configured. Setting the 'template' option in the scan config
+          file has the same effect.
+          DEPRECATED: Use the scan config file and configure the 'template' option instead.
         type: string
         required: false
       scan_severity:
         description: |
           The severities of security issues to be reported - see https://github.com/aquasecurity/trivy-action#inputs
-          (severity). Defaults to 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL'.
+          (severity). Defaults to 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL'. This input is ignored when a 'scan_config' is
+          configured. Setting the 'severity' option in the scan config file has the same effect.
+          DEPRECATED: Use the scan config file and configure the 'severity' option instead.
         type: string
         required: false
       scan_vuln_type:
         description: |
           The vulnerability types to be reported - see https://github.com/aquasecurity/trivy-action#inputs (vuln-type).
+          This input is ignored when a 'scan_config' is configured. Setting the 'vulnerability.type' option in the scan
+          config file has the same effect.
+          DEPRECATED: Use the scan config file and configure the 'vulnerability.type' option instead.
         type: string
         required: false
     secrets:
@@ -175,7 +182,7 @@ jobs:
           if [[ -n '${{ inputs.scan_output_file }}' ]]; then
             echo 'output_file=${{ inputs.scan_output_file }}' >> "$GITHUB_OUTPUT"
           elif [[ '${{ inputs.scan_output_format }}' == 'sarif' ]]; then
-            echo 'output_file=trivy-image-results.sarif' >> "$GITHUB_OUTPUT"
+            echo 'output_file=trivy-results.sarif' >> "$GITHUB_OUTPUT"
           elif [[ '${{ inputs.scan_output_format }}' != 'table' ]]; then
             echo "::error title=Configuration Error::'scan_output_format=${{ inputs.scan_output_format }}' requires 'scan_output_file'."
             exit 1
@@ -215,7 +222,7 @@ jobs:
           template: ${{ inputs.scan_output_template }}
           vuln-type: ${{ inputs.scan_vuln_type }}
           severity: ${{ inputs.scan_severity }}
-          limit-severities-for-sarif: ${{ inputs.limit_severities_for_sarif }}
+          limit-severities-for-sarif: true
           trivyignores: ${{ inputs.scan_ignores }}
           exit-code: ${{ inputs.fail_on_issues && '1' || '0' }}
 
