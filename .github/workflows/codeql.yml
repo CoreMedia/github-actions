@@ -143,18 +143,11 @@ jobs:
         with:
           java-version: ${{ inputs.java_version }}
           distribution: ${{ inputs.java_distribution }}
+          cache: ${{ !env.ACT && 'maven' || '' }}
 
       - name: Overwrite Maven settings
         if: matrix.language == 'java' && inputs.maven_settings
         run: cp ${{ inputs.maven_settings }} ${HOME}/.m2/settings.xml
-
-      - name: Cache Maven Repo
-        if: ${{ !env.ACT && matrix.language == 'java' }}
-        uses: actions/cache@v3.3.1
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
 
       # Autobuild attempts to build any compiled languages  (C/C++, C#, Go, or Java).
       # If this step fails, then you should remove it and run the build manually

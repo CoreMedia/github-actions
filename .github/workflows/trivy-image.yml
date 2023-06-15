@@ -194,18 +194,11 @@ jobs:
         with:
           java-version: ${{ inputs.java_version }}
           distribution: ${{ inputs.java_distribution }}
+          cache: ${{ !env.ACT && 'maven' || '' }}
 
       - name: Overwrite Maven settings
         if: startsWith(inputs.build_image_command, 'mvn') && inputs.maven_settings
         run: cp ${{ inputs.maven_settings }} ${HOME}/.m2/settings.xml
-
-      - name: Cache Maven Repo
-        if: ${{ !env.ACT && startsWith(inputs.build_image_command, 'mvn') }}
-        uses: actions/cache@v3.3.1
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
 
       - name: Build Docker image with Maven
         if: startsWith(inputs.build_image_command, 'mvn')
