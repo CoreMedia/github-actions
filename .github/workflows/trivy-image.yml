@@ -249,7 +249,7 @@ jobs:
                     }
                   }
               }' \
-              | jq '.data.repository.vulnerabilityAlerts.edges[].node.securityVulnerability.advisory.identifiers[] | select(.type == "CVE").value' \
+              --jq '.data.repository.vulnerabilityAlerts.edges[].node.securityVulnerability.advisory.identifiers[] | select(.type == "CVE").value' \
               | sed 's/"//g' \
               | uniq \
               > ${{ steps.config.outputs.trivyignores }}
