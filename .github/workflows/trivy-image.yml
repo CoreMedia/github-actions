@@ -220,7 +220,7 @@ jobs:
         if: startsWith(inputs.build_image_command, 'mvn')
         run: ${{ inputs.build_image_command }}
 
-      - name: Run Trivy vulnerability scanner
+      - name: Add unfixed Dependabot CVEs to Trivy ignores
         if: inputs.ignore_unfixed_dependabot_cves
         run: |
           gh api graphql \
