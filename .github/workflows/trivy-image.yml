@@ -249,6 +249,28 @@ jobs:
                       }
                     }
                   }
+              }'
+          gh api graphql \
+              --raw-field query='{
+                  repository(owner: "${{ github.repository_owner }}", name: "${{ steps.config.outputs.repository_name }}") {
+                    vulnerabilityAlerts(first: 100, states: [OPEN, DISMISSED, AUTO_DISMISSED]) {
+                      edges {
+                        node {
+                          securityVulnerability {
+                            package {
+                              name
+                            }
+                            advisory {
+                              identifiers {
+                                type
+                                value
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
               }' \
               --jq '.data.repository.vulnerabilityAlerts.edges[].node.securityVulnerability.advisory.identifiers[] | select(.type == "CVE").value' \
               | sed 's/"//g' \
