@@ -221,8 +221,6 @@ jobs:
 
       - name: Run Trivy vulnerability scanner
         if: inputs.ignore_unfixed_dependabot_cves
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
           gh api graphql \
               --raw-field query='{
