@@ -194,6 +194,7 @@ jobs:
               TRIVYIGNORES=.trivyignore
             fi
           fi
+          echo "trivyignores=${TRIVYIGNORES}" >> "$GITHUB_OUTPUT"
           if [[ -n '${{ inputs.scan_output_file }}' ]]; then
             echo 'output_file=${{ inputs.scan_output_file }}' >> "$GITHUB_OUTPUT"
           elif [[ '${{ inputs.scan_output_format }}' == 'sarif' ]]; then
@@ -247,7 +248,7 @@ jobs:
               | jq '.data.repository.vulnerabilityAlerts.edges[].node.securityVulnerability.advisory.identifiers[] | select(.type == "CVE").value' \
               | sed 's/"//g' \
               | uniq \
-              > ${TRIVYIGNORES}
+              > ${{ steps.config.outputs.trivyignores }}
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.11.2
