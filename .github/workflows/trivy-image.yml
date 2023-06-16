@@ -227,6 +227,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          gh auth status
           gh api graphql \
               --raw-field query='{
                   repository(owner: "${{ github.repository_owner }}", name: "${{ steps.config.outputs.repository_name }}") {
