@@ -29,6 +29,13 @@ on:
         type: boolean
         required: false
         default: false
+      ignore_unfixed_dependabot_cves:
+        description: |
+          Ignore all CVEs from scan results, that have already been reported by Dependabot and are not yet fixed
+          (open or dismissed).
+        type: boolean
+        required: false
+        default: false
       java_version:
         description: |
           The Java version to be used - see https://github.com/actions/setup-java#usage (java-version). It's only used
@@ -179,6 +186,14 @@ jobs:
           else
             echo "upload_artifact_name_prefix=" >> "$GITHUB_OUTPUT"
           fi
+          TRIVYIGNORES=./trivyignores
+          if [[ -n '${{ inputs.scan_config }}' ]]; then
+            if [[ -n $( cat '${{ inputs.scan_config }}' | grep '^ignorefile: ' ) ]]; then
+              TRIVYIGNORES=$( cat '${{ inputs.scan_config }}' | grep '^ignorefile: ' | sed 's/.* //' )
+            else
+              TRIVYIGNORES=.trivyignore
+            fi
+          fi
           if [[ -n '${{ inputs.scan_output_file }}' ]]; then
             echo 'output_file=${{ inputs.scan_output_file }}' >> "$GITHUB_OUTPUT"
           elif [[ '${{ inputs.scan_output_format }}' == 'sarif' ]]; then
@@ -203,6 +218,36 @@ jobs:
       - name: Build Docker image with Maven
         if: startsWith(inputs.build_image_command, 'mvn')
         run: ${{ inputs.build_image_command }}
+
+      - name: Run Trivy vulnerability scanner
+        if: inputs.ignore_unfixed_dependabot_cves
+        run: |
+          gh api graphql \
+              --raw-field query='{
+                  repository(owner: "CoreMedia", name: "coremedia-headless-commerce") {
+                    vulnerabilityAlerts(first: 100, states: [OPEN, DISMISSED, AUTO_DISMISSED]) {
+                      edges {
+                        node {
+                          securityVulnerability {
+                            package {
+                              name
+                            }
+                            advisory {
+                              identifiers {
+                                type
+                                value
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+              }' \
+              | jq '.data.repository.vulnerabilityAlerts.edges[].node.securityVulnerability.advisory.identifiers[] | select(.type == "CVE").value' \
+              | sed 's/"//g' \
+              | uniq \
+              > ${TRIVYIGNORES}
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.11.2
