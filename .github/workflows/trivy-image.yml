@@ -204,6 +204,7 @@ jobs:
             exit 1
           fi
           echo "repository_name=$( echo ${{ github.repository }} | sed 's:.*/::' )" >> "$GITHUB_OUTPUT"
+          cat "$GITHUB_OUTPUT"
 
       - name: Set up JDK 11
         if: startsWith(inputs.build_image_command, 'mvn')
@@ -250,6 +251,7 @@ jobs:
               | sed 's/"//g' \
               | uniq \
               > ${{ steps.config.outputs.trivyignores }}
+          cat ${{ steps.config.outputs.trivyignores }}
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.11.2
