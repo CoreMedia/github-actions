@@ -203,6 +203,7 @@ jobs:
             echo "::error title=Configuration Error::'scan_output_format=${{ inputs.scan_output_format }}' requires 'scan_output_file'."
             exit 1
           fi
+          echo "repository_name=$( echo ${{ github.repository }} | sed 's:.*/::' )" >> "$GITHUB_OUTPUT"
 
       - name: Set up JDK 11
         if: startsWith(inputs.build_image_command, 'mvn')
@@ -225,7 +226,7 @@ jobs:
         run: |
           gh api graphql \
               --raw-field query='{
-                  repository(owner: "CoreMedia", name: "coremedia-headless-commerce") {
+                  repository(owner: "${{ github.repository_owner }}", name: "${{ steps.config.outputs.repository_name }}") {
                     vulnerabilityAlerts(first: 100, states: [OPEN, DISMISSED, AUTO_DISMISSED]) {
                       edges {
                         node {
