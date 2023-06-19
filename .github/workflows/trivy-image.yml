@@ -230,7 +230,7 @@ jobs:
           gh auth status
           gh api graphql \
               --raw-field query='{
-                  repository(owner: "${{ github.repository_owner }}", name: "${{ steps.config.outputs.repository_name }}") {
+                  repository(owner: "CoreMedia", name: "coremedia-headless-commerce") {
                     vulnerabilityAlerts(first: 100, states: [OPEN, DISMISSED, AUTO_DISMISSED]) {
                       edges {
                         node {
@@ -244,6 +244,20 @@ jobs:
                                 value
                               }
                             }
+                          }
+                        }
+                      }
+                      nodes {
+                        securityAdvisory {
+                          ghsaId
+                          identifiers {
+                            type
+                            value
+                          }
+                        }
+                        securityVulnerability {
+                          package {
+                            name
                           }
                         }
                       }
