@@ -43,8 +43,8 @@ on:
         default: 11
       java_distribution:
         description: |
-          The Java distribution to be used - https://github.com/actions/setup-java#usage (distribution). It's only used
-          when the language to be analysed is 'java'.
+          The Java distribution to be used - see https://github.com/actions/setup-java#usage (distribution). It's only
+          used when the language to be analysed is 'java'.
         type: string
         required: false
         default: corretto
@@ -55,6 +55,15 @@ on:
           https://codeql.github.com/docs/codeql-overview/supported-languages-and-frameworks/.
         type: string
         required: true
+      maven_cache_key_prefix:
+        description: |
+          A custom cache key prefix for the local Maven repository. By default, the workflow uses the optimized cache
+          implementation of the 'setup_java' action - see https://github.com/actions/setup-java#usage (cache). When
+          a custom cache key prefix is provided, it uses the 'cache' action directly and configures the key with the
+          custom prefix instead of the 'setup-java' prefix - https://github.com/actions/cache#inputs (key). Please note
+          that no 'restore-keys' optimization applies in this case.
+        type: string
+        required: false
       maven_settings:
         description: |
           The (user) 'settings.xml' file to be used for the Maven build. Please note that environment variables
@@ -137,13 +146,20 @@ jobs:
           queries: ${{ inputs.queries }}
           config-file: ${{ inputs.config_file }}
 
-      - name: Set up JDK 11
+      - name: Set up JDK
         if: matrix.language == 'java'
         uses: actions/setup-java@v3.11.0
         with:
           java-version: ${{ inputs.java_version }}
           distribution: ${{ inputs.java_distribution }}
-          cache: ${{ !env.ACT && 'maven' || '' }}
+          cache: ${{ (!env.ACT && !inputs.maven_cache_key_prefix) && 'maven' || '' }}
+
+      - name: Cache Maven Repo with custom key (replacing cache from Set up JDK)
+        if: ${{ !env.ACT && inputs.maven_cache_key_prefix }}
+        uses: actions/cache@v3.3.1
+        with:
+          path: ~/.m2/repository
+          key: ${{ inputs.maven_cache_key_prefix }}-${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
 
       - name: Overwrite Maven settings
         if: matrix.language == 'java' && inputs.maven_settings
