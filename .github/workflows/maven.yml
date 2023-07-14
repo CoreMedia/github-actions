@@ -134,6 +134,11 @@ jobs:
         if: inputs.maven_settings
         run: cp ${{ inputs.maven_settings }} ${HOME}/.m2/settings.xml
 
+      - name: Provide secrets to build environment
+        uses: oNaiPs/secrets-to-env-action@v1.3
+        with:
+          secrets: ${{ toJSON(secrets) }}
+
       - name: Run Maven Build
         run: ${{ inputs.maven_command }}
 

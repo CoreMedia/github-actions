@@ -165,6 +165,11 @@ jobs:
         if: matrix.language == 'java' && inputs.maven_settings
         run: cp ${{ inputs.maven_settings }} ${HOME}/.m2/settings.xml
 
+      - name: Provide secrets to build environment
+        uses: oNaiPs/secrets-to-env-action@v1.3
+        with:
+          secrets: ${{ toJSON(secrets) }}
+
       # Autobuild attempts to build any compiled languages  (C/C++, C#, Go, or Java).
       # If this step fails, then you should remove it and run the build manually
       - name: Autobuild
