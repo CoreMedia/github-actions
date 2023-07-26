@@ -43,11 +43,6 @@ on:
         type: string
         required: false
         default: 'mvn --batch-mode install'
-      maven_repo_server_id:
-        description: The ID of an additional Maven repository to download artifacts from.
-        type: string
-        required: false
-        default: ''
       maven_settings:
         description: |
           The (user) 'settings.xml' file to be used for the Maven build. When provided, it will supersede the input
@@ -68,17 +63,6 @@ on:
         type: boolean
         required: false
         default: false
-    secrets:
-      maven_repo_user:
-        description: |
-          The user to connect to an additional Maven repository to download artifacts from. Will be set via
-          environment variable 'MAVEN_REPO_USER'.
-        required: false
-      maven_repo_password:
-        description: |
-          The password to connect to an additional Maven repository to download artifacts from. Will be set
-          via environment variable 'MAVEN_REPO_PASSWORD'.
-        required: false
     outputs:
       teams_fact_json:
         description: The 'fact' JSON snippet that can be added to an MS Teams Notification.
@@ -92,9 +76,6 @@ jobs:
   maven:
     name: Maven Build
     runs-on: ubuntu-latest
-    env:
-      MAVEN_REPO_USER: ${{ secrets.maven_repo_user }}
-      MAVEN_REPO_PASSWORD: ${{ secrets.maven_repo_password }}
     outputs:
       result: ${{ job.status }}
 
@@ -123,9 +104,6 @@ jobs:
         with:
           java-version: ${{ inputs.java_version }}
           distribution: ${{ inputs.java_distribution }}
-          server-id: ${{ inputs.maven_repo_server_id }}
-          server-username: MAVEN_REPO_USER
-          server-password: MAVEN_REPO_PASSWORD
           cache: ${{ (!env.ACT && !inputs.maven_cache_key_prefix) && 'maven' || '' }}
 
       - name: Cache Maven Repo with custom key (replacing cache from Set up JDK)
