@@ -120,6 +120,11 @@ jobs:
         # Learn more about CodeQL language support at https://aka.ms/codeql-docs/language-support
 
     steps:
+      - name: Provide secrets to build environment
+        uses: oNaiPs/secrets-to-env-action@v1.3
+        with:
+          secrets: ${{ toJSON(secrets) }}
+
       - name: Checkout repository
         uses: actions/checkout@v3.5.3
         with:
@@ -164,11 +169,6 @@ jobs:
       - name: Overwrite Maven settings
         if: matrix.language == 'java' && inputs.maven_settings
         run: cp ${{ inputs.maven_settings }} ${HOME}/.m2/settings.xml
-
-      - name: Provide secrets to build environment
-        uses: oNaiPs/secrets-to-env-action@v1.3
-        with:
-          secrets: ${{ toJSON(secrets) }}
 
       # Autobuild attempts to build any compiled languages  (C/C++, C#, Go, or Java).
       # If this step fails, then you should remove it and run the build manually

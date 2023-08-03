@@ -173,6 +173,11 @@ jobs:
       result: ${{ job.status }}
 
     steps:
+      - name: Provide secrets to build environment
+        uses: oNaiPs/secrets-to-env-action@v1.3
+        with:
+          secrets: ${{ toJSON(secrets) }}
+
       - name: Checkout repository
         uses: actions/checkout@v3.5.3
         with:
@@ -215,11 +220,6 @@ jobs:
       - name: Overwrite Maven settings
         if: startsWith(inputs.build_image_command, 'mvn') && inputs.maven_settings
         run: cp ${{ inputs.maven_settings }} ${HOME}/.m2/settings.xml
-
-      - name: Provide secrets to build environment
-        uses: oNaiPs/secrets-to-env-action@v1.3
-        with:
-          secrets: ${{ toJSON(secrets) }}
 
       - name: Build Docker image with Maven
         if: startsWith(inputs.build_image_command, 'mvn')
