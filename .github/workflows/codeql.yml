@@ -66,14 +66,13 @@ on:
         required: false
       maven_settings:
         description: |
-          The (user) 'settings.xml' file to be used for the Maven build. Please note that environment variables
-          cannot be provided from the caller workflow. If environment variables with server credentials are
-          required by the provided 'settings.xml', they must be named 'MAVEN_REPO_USER' and 'MAVEN_REPO_PASSWORD'
-          and have to be set via workflow secrets 'maven_repo_user' and 'maven_repo_password'. It's only used when
-          the language to be analysed is 'java'.
+          The (user) 'settings.xml' file to be used for the Maven build. Environment variables for replacement tokens
+          (like '${env.MY_USERNAME}') in the 'settings.xml' can be provided as secrets with the same name. They will
+          internally be provided as environment variables to the build environment.
+          Hint: Use 'secrets: inherit' to provide the secrets from the caller workflow's repository settings to the
+          reusable workflow without having to map them one by one.
         type: string
         required: false
-        default: ''
       queries:
         description: |
           The CodeQL query suites to run - see https://github.com/github/codeql-action and

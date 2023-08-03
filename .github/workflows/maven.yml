@@ -45,14 +45,13 @@ on:
         default: 'mvn --batch-mode install'
       maven_settings:
         description: |
-          The (user) 'settings.xml' file to be used for the Maven build. When provided, it will supersede the input
-          'maven_repo_server_id'. Please note that environment variables cannot be provided from the caller workflow.
-          If environment variables with server credentials are required by the provided 'settings.xml', they must be
-          named 'MAVEN_REPO_USER' and 'MAVEN_REPO_PASSWORD' and have to be set via workflow secrets 'maven_repo_user'
-          and 'maven_repo_password'.
+          The (user) 'settings.xml' file to be used for the Maven build. Environment variables for replacement tokens
+          (like '${env.MY_USERNAME}') in the 'settings.xml' can be provided as secrets with the same name. They will
+          internally be provided as environment variables to the build environment.
+          Hint: Use 'secrets: inherit' to provide the secrets from the caller workflow's repository settings to the
+          reusable workflow without having to map them one by one.
         type: string
         required: false
-        default: ''
       skip_update_dependency_graph:
         description: |
           Allows to skip the upload of the full dependency graph to GitHub. By default, the full dependency graph is
