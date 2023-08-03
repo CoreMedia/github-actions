@@ -58,6 +58,16 @@ on:
         type: string
         required: false
         default: ''
+      skip_update_dependency_graph:
+        description: |
+          Allows to skip the upload of the full dependency graph to GitHub. By default, the full dependency graph is
+          uploaded to GitHub when this Maven workflow is executed on the default branch of the repository, in order to
+          improve the quality of Dependabot alerts. This upload can be skipped, e.g. when executing the workflow with
+          a build configuration that would lead to an unwanted or invalid dependency graph being uploaded. On the other
+          hand, enforcing the upload for non-default branches is not possible as it won't make sense.
+        type: boolean
+        required: false
+        default: false
     secrets:
       maven_repo_user:
         description: |
@@ -127,7 +137,6 @@ jobs:
       - name: Run Maven Build
         run: ${{ inputs.maven_command }}
 
-      # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive.
       - name: Update dependency graph
-        if: steps.config.outputs.checkout_ref == github.event.repository.default_branch
+        if: (!inputs.skip_update_dependency_graph) && steps.config.outputs.checkout_ref == github.event.repository.default_branch
         uses: advanced-security/maven-dependency-submission-action@v3.0.2
