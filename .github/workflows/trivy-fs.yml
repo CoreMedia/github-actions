@@ -146,7 +146,7 @@ jobs:
           fi
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.11.2
+        uses: aquasecurity/trivy-action@0.12.0
         with:
           scan-type: fs
           scan-ref: ${{ inputs.scan_path }}
