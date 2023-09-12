@@ -197,7 +197,7 @@ jobs:
 
       - name: Cache Maven Repo with custom key (replacing cache from Set up JDK)
         if: ${{ !env.ACT && inputs.maven_cache_key_prefix }}
-        uses: actions/cache@v3.3.1
+        uses: actions/cache@v3.3.2
         with:
           path: ~/.m2/repository
           key: ${{ inputs.maven_cache_key_prefix }}-${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
