@@ -9,6 +9,6 @@ updates:
     directory: '/'
     schedule:
       interval: weekly
-    reviewers:
-      - marcrohlfs
-      #- 'CoreMedia/ci-agents'
+    labels:
+      - dependencies
+      - toko
