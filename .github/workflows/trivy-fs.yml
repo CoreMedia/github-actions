@@ -127,7 +127,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v4
         with:
           ref: ${{ inputs.checkout_ref }}
 
@@ -167,7 +167,7 @@ jobs:
 
       - name: Upload Trivy scan results to GitHub Security tab
         if: always() && inputs.scan_output_format == 'sarif'
-        uses: github/codeql-action/upload-sarif@v2.22.4
+        uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: ${{ steps.config.outputs.output_file }}
           ref: ${{ steps.config.outputs.checkout_ref }}
@@ -175,7 +175,7 @@ jobs:
 
       - name: Upload Trivy scan results to GitHub workflow run
         if: always() && inputs.scan_output_file
-        uses: actions/upload-artifact@v3.1.3
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ steps.config.outputs.upload_artifact_name_prefix }}${{ steps.config.outputs.output_file }}
           path: ${{ steps.config.outputs.output_file }}
