@@ -6,6 +6,14 @@ We'll start with reusable workflows and might change (some of) them to actions l
 
 ## Reusable Workflows
 
+> [!IMPORTANT]  
+> The reusable workflows are now **deprecated**! It turned out that our projects are too different
+> to provide reusable workflows that fit all. To support more and more projects the complexity of
+> these workflows increased to a point where their maintenance did not seem reasonable anymore, and
+> so we decided to deprecate them. The only exception is the `debug.yml` workflow, which can still
+> be used (temporarily) to print out information about the environment and the workflow run that can
+> be used when developing new workflows. 
+
 The reusable workflows are located in the directory `.github/workflows`. See the `*.yml` files of
 the workflows for usage information and description of `inputs`, `secrets` and `outputs`.
 
