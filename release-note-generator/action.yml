@@ -1,0 +1,16 @@
+name: 'Release Note Generator'
+description: 'Generate a release note for a Dependabot pull request'
+author: 'CoreMedia GmbH'
+
+inputs:
+  pull-request-title:
+    description: 'The title of the Dependabot pull request'
+    required: true
+
+outputs:
+  release-note:
+    description: 'The release note for the provided pull request title, formatted according to the provided style.'
+
+runs:
+  using: node20
+  main: '../dist/main.js'

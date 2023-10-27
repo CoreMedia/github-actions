@@ -1,0 +1,10 @@
+{
+    "org.apache.logging.log4j:log4j-bom": {
+        "name": "Log4j",
+        "link": "https://logging.apache.org/log4j/2.x/release-notes.html"
+    },
+    "maven-surefire.version": {
+        "name": "Maven Surefire Plugins",
+        "link": "https://github.com/apache/maven-surefire/releases"
+    }
+}
