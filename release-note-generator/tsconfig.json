@@ -1,0 +1,14 @@
+{
+  "extends": "@tsconfig/node18",
+  "include": [
+    "src"
+  ],
+  "compilerOptions": {
+    "lib": [
+      "ES2023",
+      "DOM"
+    ],
+    "resolveJsonModule": true,
+    "outDir": "dist"
+  }
+}
