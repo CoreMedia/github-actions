@@ -11,6 +11,9 @@ updates:
       interval: monthly
       time: '01:46'
       timezone: 'Etc/UTC'
+    ignore:
+      - dependency-name: 'oNaiPs/secrets-to-env-action'
+      - dependency-name: 'aquasecurity/trivy-action'
     labels:
       - dependencies
       - toko
