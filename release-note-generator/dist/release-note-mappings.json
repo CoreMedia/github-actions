@@ -1,4 +1,28 @@
 {
+    "cms.version": {
+        "name": "CoreMedia Content Cloud v11 dependencies",
+        "link": "https://releases.coremedia.com/cmcc-11/overview/distributions"
+    },
+    "com.google.guava:guava": {
+        "name": "Guava",
+        "link": "https://github.com/google/guava/releases"
+    },
+    "grpc.version": {
+        "name": "gRPC-Java",
+        "link": "https://github.com/grpc/grpc-java/releases"
+    },
+    "net.devh:grpc-server-spring-boot-autoconfigure": {
+        "name": "gRPC Spring Boot Starter",
+        "link": "https://github.com/yidongnan/grpc-spring-boot-starter/releases"
+    },
+    "com.fasterxml.jackson:jackson-bom": {
+        "name": "Jackson",
+        "link": "https://github.com/FasterXML/jackson/wiki/Jackson-Releases"
+    },
+    "com.google.cloud.tools:jib-maven-plugin": {
+        "name": "Jib Maven Plugin",
+        "link": "https://github.com/GoogleContainerTools/jib/releases"
+    },
     "org.apache.logging.log4j:log4j-bom": {
         "name": "Log4j",
         "link": "https://logging.apache.org/log4j/2.x/release-notes.html"
@@ -6,5 +30,29 @@
     "maven-surefire.version": {
         "name": "Maven Surefire Plugins",
         "link": "https://github.com/apache/maven-surefire/releases"
+    },
+    "org.owasp:dependency-check-maven": {
+        "name": "OWASP Dependency-Check Maven Plugin",
+        "link": "https://github.com/jeremylong/DependencyCheck/releases"
+    },
+    "com.google.protobuf:protobuf-bom": {
+        "name": "Protocol Buffers for Java",
+        "link": "https://github.com/protocolbuffers/protobuf/releases?q=Java"
+    },
+    "org.yaml:snakeyaml": {
+        "name": "SnakeYAML",
+        "link": "https://bitbucket.org/snakeyaml/snakeyaml/wiki/Changes"
+    },
+    "org.sonarsource.scanner.maven:sonar-maven-plugin": {
+        "name": "Sonar Scanner for Maven",
+        "link": "https://github.com/SonarSource/sonar-scanner-maven/releases"
+    },
+    "org.springframework.boot:spring-boot-starter-parent": {
+        "name": "Spring Boot",
+        "link": "https://github.com/spring-projects/spring-boot/releases"
+    },
+    "tomcat.version": {
+        "name": "Tomcat",
+        "link": "https://tomcat.apache.org/tomcat-10.1-doc/changelog.html"
     }
 }
