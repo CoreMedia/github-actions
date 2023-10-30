@@ -33,8 +33,13 @@ async function run() {
         const updateInfo = pullRequestTitle.replace(/^.+ (from \S+ to \S+).*$/g, "$1");
         const packageInfo = releaseNoteMappings[packageId];
         if (packageInfo) {
-            console.log(`- [${packageInfo.name}|${packageInfo.link}] ${updateInfo}`);
-            core.setOutput("release-note", `- [${packageInfo.name}|${packageInfo.link}] ${updateInfo}`);
+            let outputStyle = core.getInput("output-style", { required: true });
+            if (outputStyle === 'jira-list-entry') {
+                core.setOutput("release-note", `- [${packageInfo.name}|${packageInfo.link}] ${updateInfo}`);
+            }
+            else {
+                core.setOutput("release-note", `Output style ${outputStyle} is not supported. You'll have to assemble a release note yourself with package name '${packageInfo.name}' and release notes link '${packageInfo.link}'.`);
+            }
         }
         else {
             core.setOutput("release-note", `- ${packageId} ${updateInfo}`);

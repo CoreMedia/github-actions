@@ -10,7 +10,12 @@ export async function run(): Promise<void> {
 
     const packageInfo = releaseNoteMappings[packageId];
     if (packageInfo) {
-      core.setOutput("release-note", `- [${packageInfo.name}|${packageInfo.link}] ${updateInfo}`);
+      let outputStyle = core.getInput("output-style", { required: true });
+      if (outputStyle === 'jira-list-entry') {
+        core.setOutput("release-note", `- [${packageInfo.name}|${packageInfo.link}] ${updateInfo}`);
+      } else {
+        core.setOutput("release-note", `Output style ${outputStyle} is not supported. You'll have to assemble a release note yourself with package name '${packageInfo.name}' and release notes link '${packageInfo.link}'.`);
+      }
     } else {
       core.setOutput("release-note", `- ${packageId} ${updateInfo}`);
       core.setOutput("not-found-msg", `No release note mapping found for the package '${packageId}'. Please add a mapping for that package to the [release-note-mappings.json](/CoreMedia/github-actions/blob/main/release-note-generator/src/release-note-mappings.json).`);

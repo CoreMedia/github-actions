@@ -6,6 +6,10 @@ inputs:
   pull-request-title:
     description: 'The title of the Dependabot pull request'
     required: true
+  output-style:
+    description: 'The output style of the release note. Currently supported: jira-list-entry'
+    required: false
+    default: 'jira-list-entry'
 
 outputs:
   release-note:
