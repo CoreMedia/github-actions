@@ -126,4 +126,4 @@ jobs:
 
       - name: Update dependency graph
         if: (!inputs.skip_update_dependency_graph) && steps.config.outputs.checkout_ref == github.event.repository.default_branch
-        uses: advanced-security/maven-dependency-submission-action@v3
+        uses: advanced-security/maven-dependency-submission-action@v4
